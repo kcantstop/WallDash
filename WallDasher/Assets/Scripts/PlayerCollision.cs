@@ -17,6 +17,6 @@ public class PlayerCollision : MonoBehaviour
     private void Die()
     {
         _isDead = true;
-        GameManager.Instance.PlayerDied(gameObject.name);
+        GameBehavior.Instance.PlayerDied(gameObject.name);
     }
 }

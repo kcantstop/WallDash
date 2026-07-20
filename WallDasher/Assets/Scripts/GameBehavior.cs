@@ -1,10 +1,16 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public class GameBehavior : MonoBehaviour
 {
-    public static GameManager Instance;
+    public static GameBehavior Instance;
+
+    [SerializeField] private int startingLives = 3;
+
+    private int _player1Lives;
+    private int _player2Lives;
 
     private bool _roundOver = false;
     private HashSet<string> _deadThisFrame = new HashSet<string>();
@@ -12,10 +18,15 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         if (Instance == null)
-        { Instance = this;
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            _player1Lives = startingLives;
+            _player2Lives = startingLives;
         }
         else
-        { Destroy(gameObject);
+        {
+            Destroy(gameObject);
         }
     }
 
@@ -32,17 +43,46 @@ public class GameManager : MonoBehaviour
         _roundOver = true;
         FreezeAll();
 
-        if (_deadThisFrame.Count > 1)
+        if (_deadThisFrame.Contains("Player1")) _player1Lives--;
+        if (_deadThisFrame.Contains("Player2")) _player2Lives--;
+
+        StartCoroutine(EndRoundRoutine());
+    }
+
+    private IEnumerator EndRoundRoutine()
+    {
+        yield return new WaitForSeconds(2.0f);
+
+        if (_player1Lives <= 0 || _player2Lives <= 0)
         {
-            Debug.Log("Draw - both players crashed at the same time!");
+            // Game over - reset for next full game and return to menu
+            ResetGame();
+            SceneManager.LoadScene("StartMenu");
         }
         else
         {
-            List<string> loserList = new List<string>(_deadThisFrame);
-            string loser = loserList[0];
-            string winner = loser == "Player1" ? "Player2" : "Player1";
-            Debug.Log(winner + " wins the round!");
+            // Next round - reload game scene, countdown handles the rest
+            ResetRound();
+            SceneManager.LoadScene("Main");
         }
+    }
+
+    private void ResetRound()
+    {
+        _roundOver = false;
+        _deadThisFrame.Clear();
+    }
+
+    private void ResetGame()
+    {
+        ResetRound();
+        _player1Lives = startingLives;
+        _player2Lives = startingLives;
+    }
+
+    public int GetLives(string playerName)
+    {
+        return playerName == "Player1" ? _player1Lives : _player2Lives;
     }
 
     private void FreezeAll()
@@ -55,14 +95,6 @@ public class GameManager : MonoBehaviour
 
             Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
             rb.linearVelocity = Vector2.zero;
-        }
-    }
-
-    void Update()
-    {
-        if (_roundOver && Input.GetKeyDown(KeyCode.R))
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 }
