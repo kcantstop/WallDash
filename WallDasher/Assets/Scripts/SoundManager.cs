@@ -22,6 +22,9 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioClip buttonHoverClip;
     [SerializeField] private AudioClip buttonClickClip;
 
+    [Header("Powerup Sounds")]
+    [SerializeField] private AudioClip pickupClip;
+
     void Awake()
     {
         if (Instance == null)
@@ -51,6 +54,7 @@ public class SoundManager : MonoBehaviour
     public void PlayGo()           { PlayClip(goClip); }
     public void PlayButtonHover()  { PlayClip(buttonHoverClip); }
     public void PlayButtonClick()  { PlayClip(buttonClickClip); }
+    public void PlayPickup()       { PlayClip(pickupClip); }
 
     private void PlayClip(AudioClip clip)
     {

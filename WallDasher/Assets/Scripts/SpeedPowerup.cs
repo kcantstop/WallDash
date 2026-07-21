@@ -23,7 +23,7 @@ public class SpeedPowerup : MonoBehaviour
                 GetComponent<SpriteRenderer>().enabled = false;
                 GetComponent<Collider2D>().enabled = false;
 
-                SoundManager.Instance.PlayBlip(); // placeholder pickup sound - swap later
+                SoundManager.Instance.PlayPickup();
                 StartCoroutine(BoostRoutine(movement));
             }
         }
