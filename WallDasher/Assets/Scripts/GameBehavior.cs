@@ -7,14 +7,17 @@ public class GameBehavior : MonoBehaviour
 {
     public static GameBehavior Instance;
 
+    public enum GameState { Playing, Paused, GameOver }
+    public GameState CurrentState { get; private set; } = GameState.Playing;
+
     [SerializeField] private int startingLives = 3;
 
     private int _player1Lives;
     private int _player2Lives;
-    
-    public bool RoundOver => _roundOver;
 
     private bool _roundOver = false;
+    public bool RoundOver => _roundOver;
+
     private HashSet<string> _deadThisFrame = new HashSet<string>();
 
     void Awake()
@@ -29,6 +32,46 @@ public class GameBehavior : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    void Update()
+    {
+        // Only allows pausing during active play, and only in the game scene
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (CurrentState == GameState.Playing)
+            {
+                PauseGame();
+            }
+            else if (CurrentState == GameState.Paused)
+            {
+                ResumeGame();
+            }
+        }
+    }
+
+    public void PauseGame()
+    {
+        if (SceneManager.GetActiveScene().name != "Main") return;
+
+        CurrentState = GameState.Paused;
+        Time.timeScale = 0f;
+
+        if (PauseMenu.Instance != null)
+        {
+            PauseMenu.Instance.Show();
+        }
+    }
+
+    public void ResumeGame()
+    {
+        CurrentState = GameState.Playing;
+        Time.timeScale = 1f;
+
+        if (PauseMenu.Instance != null)
+        {
+            PauseMenu.Instance.Hide();
         }
     }
 
@@ -50,11 +93,13 @@ public class GameBehavior : MonoBehaviour
 
         if (_player1Lives <= 0 && _player2Lives <= 0)
         {
+            CurrentState = GameState.GameOver;
             SoundManager.Instance.PlayDraw();
             ShowRoundMessage("DRAW!");
         }
         else if (_player1Lives <= 0 || _player2Lives <= 0)
         {
+            CurrentState = GameState.GameOver;
             string winner = _player1Lives <= 0 ? "Player 2" : "Player 1";
             SoundManager.Instance.PlayWinner();
             ShowRoundMessage(winner + " WINS!");
@@ -74,13 +119,11 @@ public class GameBehavior : MonoBehaviour
 
         if (_player1Lives <= 0 || _player2Lives <= 0)
         {
-            // Game over - reset for next full game and return to menu
             ResetGame();
             SceneManager.LoadScene("StartMenu");
         }
         else
         {
-            // Next round - reload game scene, countdown handles the rest
             ResetRound();
             SceneManager.LoadScene("Main");
         }
@@ -90,9 +133,10 @@ public class GameBehavior : MonoBehaviour
     {
         _roundOver = false;
         _deadThisFrame.Clear();
+        CurrentState = GameState.Playing;
     }
 
-    private void ResetGame()
+    public void ResetGame()
     {
         ResetRound();
         _player1Lives = startingLives;

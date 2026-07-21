@@ -16,9 +16,8 @@ public class TrailSpawner : MonoBehaviour
     {
         if (Vector3.Distance(transform.position, _lastSpawnPos) >= spawnDistance)
         {
-            // Spawn where the player just WAS, not where they currently are -
-            // avoids the trail overlapping the player's own collider the instant it appears
-            Instantiate(trailPrefab, _lastSpawnPos, Quaternion.identity);
+            GameObject segment = Instantiate(trailPrefab, _lastSpawnPos, Quaternion.identity);
+            segment.GetComponent<TrailDelay>().SetOwner(gameObject.name);
             _lastSpawnPos = transform.position;
         }
     }

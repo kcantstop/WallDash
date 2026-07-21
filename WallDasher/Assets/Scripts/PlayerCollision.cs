@@ -23,6 +23,7 @@ public class PlayerCollision : MonoBehaviour
     private void Die()
     {
         _isDead = true;
+        GetComponent<DeathFlicker>().StartFlicker();
         GameBehavior.Instance.PlayerDied(gameObject.name);
     }
 }
