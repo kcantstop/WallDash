@@ -6,10 +6,16 @@ public class PlayerCollision : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (_isDead) return;
+        if (_isDead || GameBehavior.Instance.RoundOver) return;
 
-        if (other.CompareTag("Trail") || other.CompareTag("Wall") || other.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
+            SoundManager.Instance.PlayHeadOn();
+            Die();
+        }
+        else if (other.CompareTag("Wall") || other.CompareTag("Trail"))
+        {
+            SoundManager.Instance.PlayCrash();
             Die();
         }
     }

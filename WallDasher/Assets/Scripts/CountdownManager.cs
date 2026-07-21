@@ -19,15 +19,19 @@ public class CountdownManager : MonoBehaviour
         countdownText.gameObject.SetActive(true);
 
         countdownText.text = "3";
+        SoundManager.Instance.PlayBlip();
         yield return new WaitForSeconds(stepDuration);
 
         countdownText.text = "2";
+        SoundManager.Instance.PlayBlip();
         yield return new WaitForSeconds(stepDuration);
 
         countdownText.text = "1";
+        SoundManager.Instance.PlayBlip();
         yield return new WaitForSeconds(stepDuration);
 
-        countdownText.text = "GO";
+        countdownText.text = "GO!";
+        SoundManager.Instance.PlayGo();
         yield return new WaitForSeconds(0.5f);
 
         countdownText.gameObject.SetActive(false);

@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Trail
+  - Wall
   layers:
   - Default
   - TransparentFX

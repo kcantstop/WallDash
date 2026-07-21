@@ -11,6 +11,8 @@ public class GameBehavior : MonoBehaviour
 
     private int _player1Lives;
     private int _player2Lives;
+    
+    public bool RoundOver => _roundOver;
 
     private bool _roundOver = false;
     private HashSet<string> _deadThisFrame = new HashSet<string>();
@@ -45,6 +47,23 @@ public class GameBehavior : MonoBehaviour
 
         if (_deadThisFrame.Contains("Player1")) _player1Lives--;
         if (_deadThisFrame.Contains("Player2")) _player2Lives--;
+
+        if (_player1Lives <= 0 && _player2Lives <= 0)
+        {
+            SoundManager.Instance.PlayDraw();
+            ShowRoundMessage("DRAW!");
+        }
+        else if (_player1Lives <= 0 || _player2Lives <= 0)
+        {
+            string winner = _player1Lives <= 0 ? "Player 2" : "Player 1";
+            SoundManager.Instance.PlayWinner();
+            ShowRoundMessage(winner + " WINS!");
+        }
+        else if (_deadThisFrame.Count > 1)
+        {
+            SoundManager.Instance.PlayDraw();
+            ShowRoundMessage("DRAW!");
+        }
 
         StartCoroutine(EndRoundRoutine());
     }
@@ -83,6 +102,14 @@ public class GameBehavior : MonoBehaviour
     public int GetLives(string playerName)
     {
         return playerName == "Player1" ? _player1Lives : _player2Lives;
+    }
+
+    private void ShowRoundMessage(string message)
+    {
+        if (WinnerDisplay.Instance != null)
+        {
+            WinnerDisplay.Instance.ShowMessage(message);
+        }
     }
 
     private void FreezeAll()
